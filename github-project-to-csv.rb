@@ -37,6 +37,7 @@ class GithubQuery
 
   def execute
     if GithubQuery.personal_access_token
+      print "Executing with https - got pat"
       execute_with_https
     else
       execute_with_gh_client
@@ -46,11 +47,13 @@ class GithubQuery
   def execute_with_gh_client
     command = "gh api graphql -f query='#{query}' 2>&1"
     @result = `#{command}`
+    print "[execute_with_gh_client] Ok1 - After getting results "
     raise "gh command line client not installed. https://cli.github.com/. install with 'brew install gh'" if @result.include? "gh: command not found"
 
     if @result.include? "gh auth login"
       system "gh auth login --scopes \"project\""
       @result = `#{command}`
+      print "[execute_with_gh_client] Ok2 - In if results incllude gh auth login - After getting results "
     end
 
     @result = JSON.parse(@result)
@@ -60,7 +63,9 @@ class GithubQuery
     url = "https://api.github.com/graphql"
     body = {query: query}.to_json
     headers = {"Authorization" => "Bearer #{GithubQuery.personal_access_token}"}
+    print "[execute_with_https] Ok1 - about to send http request"
     @result = HTTParty.post(url, body:, headers:)
+    print "[execute_with_https] Ok2 - AFTER http post"
     raise @result["message"] if @result["message"]
   end
 end
@@ -353,6 +358,8 @@ raise "Could not extract project number from project url" unless options[:projec
 
 GithubQuery.personal_access_token = options[:github_personal_access_token]
 github_project = GithubProject.find_by(org: options[:org], user: options[:user], number: options[:project_number])
+
+print "[MAIN] Ok till after getting github_project"
 
 csv_content = github_project.to_csv
 
