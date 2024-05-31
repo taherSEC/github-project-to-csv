@@ -65,7 +65,8 @@ class GithubQuery
     print "[execute_with_https] Before the headers #{GithubQuery.personal_access_token} \n\n"
     headers = {"Authorization" => "Bearer #{GithubQuery.personal_access_token}"}
     print "[execute_with_https] Ok1 - about to send http request \n\n"
-    @result = HTTParty.post(url, body:, headers:)
+    #@result = HTTParty.post(url, body:, headers:)
+    @result = HTTParty.post(url, body: body, headers: headers)
     print "[execute_with_https] Ok2 - AFTER http post \n\n"
     raise @result["message"] if @result["message"]
   end
